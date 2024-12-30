@@ -38,7 +38,7 @@ return [
                     'api'    => [
                         'type'    => Segment::class,
                         'options' => [
-                            'route'    => '/user/api/[:id]',
+                            'route'    => '/user/api[/:id]',
                             'defaults' => [
                                 'controller' => Controller\ApiController::class,
                             ],
