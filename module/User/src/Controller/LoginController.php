@@ -22,7 +22,6 @@ final class LoginController extends AbstractActionController
     public function indexAction(): ViewModel
     {
         if ($this->request->isPost()) {
-            $data = $this->request->getPost()->toArray();
             $this->signInForm->setData($this->request->getPost()->toArray());
             if ($this->signInForm->isValid()) {
                 $this->redirect()->toRoute('home');
