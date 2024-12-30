@@ -25,6 +25,7 @@ final class AuthenticationServiceFactory
     ): AuthenticationService {
         $authConfig      = $container->get('config')['auth_config'];
         $table           = $container->get('config')['db'][Module::class]['table_name'];
+        /** @var Adapter */
         $databaseAdapter = $container->get('dbAdapter');
         Assert::isInstanceOf($databaseAdapter, Adapter::class);
 
