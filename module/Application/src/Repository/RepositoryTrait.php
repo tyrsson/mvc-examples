@@ -7,7 +7,7 @@ namespace Application\Repository;
 use Application\Entity\EntityInterface;
 use Closure;
 use Laminas\Db\Adapter\AdapterInterface;
-use Laminas\Db\ResultSet\ResultSetInterface;
+use Laminas\Db\ResultSet\AbstractResultSet;
 use Laminas\Db\Sql\Where;
 use Laminas\Db\TableGateway\TableGatewayInterface;
 use Laminas\Stdlib\ErrorHandler;
@@ -46,13 +46,20 @@ trait RepositoryTrait
         return $this->{$match[1]}(lcfirst($match[2]), ...$arguments);
     }
 
-    public function fetchAll(): ResultSetInterface
+    /**
+     * We return type this to AbstractResultSet so that our IDE's can see
+     * methods that are not in the interface
+     * @return AbstractResultSet
+     */
+    public function fetchAll(): AbstractResultSet
     {
         return $this->gateway->select();
     }
 
-    public function delete(?EntityInterface $entity = null, Where|Closure|array|null $where = null): int
-    {
+    public function delete(
+        ?EntityInterface $entity = null,
+        Where|Closure|array|null $where = null
+    ): int {
         return $this->gateway->delete($where);
     }
 

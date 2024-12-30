@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Application\Form\Authentication;
+namespace User\Form;
 
+use Laminas\Authentication\AuthenticationServiceInterface;
+use Laminas\Authentication\Validator\Authentication;
 use Laminas\Filter\StringTrim;
 use Laminas\Filter\StripTags;
+use Laminas\Filter\ToInt;
 use Laminas\Form\Element\Button;
 use Laminas\Form\Element\Checkbox;
 use Laminas\Form\Element\Email;
@@ -17,83 +20,88 @@ use Laminas\Validator\EmailAddress;
 
 class SignInForm extends Form implements InputFilterProviderInterface
 {
-    public function __construct($name = null, $options = [])
-    {
+    public function __construct(
+        private AuthenticationServiceInterface $authService,
+        private array $authConfig,
+        $name = null,
+        $options = []
+    ) {
         parent::__construct($name, $options);
+    }
 
+    public function init()
+    {
         $this->setAttribute('method', 'post');
-        $this->setAttribute('action', '');
         $this->setAttribute('class', 'sign-in-form');
         $this->setAttribute('id', 'sign-in-form');
         $this->setAttribute('role', 'form');
-
         $this
-            ->add([
-                    'type'       => Email::class,
-                    'name'       => 'username',
-                    'attributes' => [
-                        'id'             => 'signInForm-username',
-                        'required'       => true,
-                        'class'          => 'form-control',
-                        'autocomplete'   => 'username',
-                        'autocapitalize' => 'none',
-                        'maxlength'      => 255,
-                    ],
-                    'options'    => [
-                        'label'            => 'Email',
-                        'label_attributes' => [
-                            'class' => 'font-size-h6 text-dark',
-                        ],
-                    ],
-                ])
-            ->add([
-                    'type'       => Password::class,
-                    'name'       => 'password',
-                    'attributes' => [
-                        'id'             => 'signInForm-password',
-                        'required'       => true,
-                        'class'          => 'form-control',
-                        'autocomplete'   => 'current-password',
-                        'autocapitalize' => 'none',
-                        'maxlength'      => 16,
-                    ],
-                    'options'    => [
-                        'label'            => 'Password',
-                        'label_attributes' => [
-                            'class' => 'font-size-h6 text-dark pt-5',
-                        ],
-                    ],
-                ])
-            ->add([
-                    'type'       => Checkbox::class,
-                    'name'       => 'rememberMe',
-                    'attributes' => [
-                        'id'       => 'signInForm-rememberMe',
-                        'required' => false,
-                    ],
-                    'options'    => [
-                        'use_hidden_element' => false,
-                        'label'              => 'Remember Me',
-                        'label_attributes'   => [
-                            'class' => '',
-                        ],
-                    ],
-                ])
-            //<span class="indicator-progress">Hang On<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
-            ->add([
-                    'type'       => Button::class,
-                    'name'       => 'submitButton',
-                    'attributes' => [
-                        'type'  => 'submit',
-                        'class' => 'btn btn-primary',
-                    ],
-                    'options'    => [
-                        'label'         => '<span class="indicator-label">Sign In</span>',
-                        'label_options' => [
-                            'disable_html_escape' => true,
-                        ],
-                    ],
-                ]);
+        ->add([
+            'type'       => Email::class,
+            'name'       => $this->authConfig['identity'],
+            'attributes' => [
+                'id'             => 'signInForm-username',
+                'required'       => true,
+                'class'          => 'form-control',
+                'autocomplete'   => 'username',
+                'autocapitalize' => 'none',
+                'maxlength'      => 255,
+            ],
+            'options'    => [
+                'label'            => 'Email',
+                'label_attributes' => [
+                    'class' => 'font-size-h6 text-dark',
+                ],
+            ],
+        ])
+        ->add([
+            'type'       => Password::class,
+            'name'       => 'password',
+            'attributes' => [
+                'id'             => 'signInForm-password',
+                'required'       => true,
+                'class'          => 'form-control',
+                'autocomplete'   => 'current-password',
+                'autocapitalize' => 'none',
+                'maxlength'      => 16,
+            ],
+            'options'    => [
+                'label'            => 'Password',
+                'label_attributes' => [
+                    'class' => 'font-size-h6 text-dark pt-5',
+                ],
+            ],
+        ])
+        ->add([
+            'type'       => Checkbox::class,
+            'name'       => 'rememberMe',
+            'attributes' => [
+                'id'       => 'signInForm-rememberMe',
+                'required' => false,
+            ],
+            'options'    => [
+                'use_hidden_element' => false,
+                'label'              => 'Remember Me',
+                'label_attributes'   => [
+                    'class' => '',
+                ],
+            ],
+        ])
+        //<span class="indicator-progress">Hang On<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+        ->add([
+            'type'       => Button::class,
+            'name'       => 'submitButton',
+            'attributes' => [
+                'type'  => 'submit',
+                'class' => 'btn btn-primary',
+            ],
+            'options'    => [
+                'label'         => '<span class="indicator-label">Sign In</span>',
+                'label_options' => [
+                    'disable_html_escape' => true,
+                ],
+            ],
+        ]);
     }
 
     public function getInputFilterSpecification()
@@ -108,7 +116,7 @@ class SignInForm extends Form implements InputFilterProviderInterface
             'redirect'   => [
                 'required' => false,
             ],*/
-            'username'   => [
+            $this->authConfig['identity']   => [
                 'required'   => true,
                 'filters'    => [
                     [
@@ -127,22 +135,28 @@ class SignInForm extends Form implements InputFilterProviderInterface
             'password'   => [
                 'required'   => true,
                 'filters'    => [
-                    [
-                        'name' => StringTrim::class,
-                    ],
-                    [
-                        'name' => StripTags::class,
-                    ],
+                    ['name' => StringTrim::class],
+                    ['name' => StripTags::class],
                 ],
-                'validators' => [
+                'validators' => [ // needs a StringLength for the max length for the column
+                    [
+                        'name'    => Authentication::class,
+                        'options' => [
+                            'identity'   => $this->authConfig['identity'],
+                            'credential' => $this->authConfig['credential'],
+                            'service'    => $this->authService,
+                            'messages'   => [
+                                Authentication::IDENTITY_NOT_FOUND => 'Have you activated your account?',
+                                Authentication::CREDENTIAL_INVALID => 'Invalid credentials received',
+                            ],
+                        ],
+                    ],
                 ],
             ],
             'rememberMe' => [
                 'required' => false,
                 'filters'  => [
-                    function ($value) {
-                        return ($value !== null);
-                    },
+                    ['name' => ToInt::class],
                 ],
             ],
         ];

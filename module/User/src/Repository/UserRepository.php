@@ -59,12 +59,4 @@ class UserRepository extends AbstractRepository
 
         return $user;
     }
-
-    // This can actually be illegal in some jurisdictions mainly the EU, delete the user's data
-    // public function delete($id)
-    // {
-    //     $where = new Where();
-    //     $where->equalTo('id', $id);
-    //     return $this->gateway->update(['status' => '0'], $where);
-    // }
 }

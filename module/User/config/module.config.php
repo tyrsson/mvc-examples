@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace User;
 
+use Laminas\Authentication;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\Router\Http\Placeholder;
 use User\Module;
 
 return [
+    'auth_config' => [
+        'identity'     => 'email',
+        'credential'   => 'password',
+        'where_column' => 'verified',
+    ],
     'db' => [
         Module::class => [
             'table_name' => 'user', // table name, will need to be updated when the table name changes
@@ -21,12 +27,18 @@ return [
             Controller\LoginController::class => Controller\Container\LoginControllerFactory::class,
         ],
     ],
+    'form_elements' => [
+        'factories' => [
+            Form\SignInForm::class => Form\Container\SignInFormFactory::class,
+        ],
+    ],
     'listeners' => [
 
     ],
     'service_manager' => [
         'factories' => [
-            Repository\UserRepository::class => Repository\UserRepositoryFactory::class,
+            Authentication\AuthenticationService::class => Auth\AuthenticationServiceFactory::class,
+            Repository\UserRepository::class            => Repository\UserRepositoryFactory::class,
         ],
     ],
     'router' => [
@@ -38,7 +50,7 @@ return [
                     'api'    => [
                         'type'    => Segment::class,
                         'options' => [
-                            'route'    => '/user/api/[:id]',
+                            'route'    => '/user/api[/:id]',
                             'defaults' => [
                                 'controller' => Controller\ApiController::class,
                             ],
