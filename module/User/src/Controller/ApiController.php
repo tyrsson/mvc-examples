@@ -17,7 +17,7 @@ final class ApiController extends AbstractRestfulController
 
     public function get($id)
     {
-        $user = $this->userRepository->get($id);
+        $user = $this->userRepository->findOneById($id);
         return new JsonModel(
             [
                 'data' => $user->getArrayCopy(),
