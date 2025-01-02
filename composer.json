@@ -9,8 +9,19 @@
         "skeleton",
         "framework"
     ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../Github/axleus-org/*",
+            "options": {
+                "symlink": true,
+                "versions": "dev-master"
+            }
+        }
+    ],
     "require": {
         "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
+        "axleus/axleus-log": "dev-master",
         "laminas/laminas-authentication": "^2.18",
         "laminas/laminas-component-installer": "^3.5",
         "laminas/laminas-db": "^2.20",
@@ -73,6 +84,8 @@
         "static-analysis": "Run static analysis tool Psalm.",
         "test": "Run unit tests."
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
         "sort-packages": true,
         "allow-plugins": {
