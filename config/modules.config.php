@@ -15,6 +15,7 @@ return [
     'Laminas\Filter',
     'Laminas\Router',
     'Laminas\Validator',
+    'Axleus\Log',
     'Application',
     "User",
 ];

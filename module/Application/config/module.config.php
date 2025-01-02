@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Application;
 
+use Laminas\Db\Adapter\AdapterInterface;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
+    'service_manager' => [
+        'aliases' => [
+            AdapterInterface::class => 'dbAdapter',
+        ],
+    ],
     'router' => [
         'routes' => [
             'home' => [
